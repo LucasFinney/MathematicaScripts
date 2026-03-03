@@ -1,0 +1,24 @@
+# Mathematica compiled/cache files
+*.mx
+*.mx2
+
+# Notebook autosave and backup files
+*.nb.bak
+*~.nb
+*.m~
+*.wl~
+*.wls~
+
+# Mathematica temporary working directories
+.MathematicaCache/
+
+# Wolfram kernel crash logs
+WolframKernel*.log
+
+# Claude Code session data
+.claude/
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
