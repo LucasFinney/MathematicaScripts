@@ -15,6 +15,9 @@
 # Wolfram kernel crash logs
 WolframKernel*.log
 
+# Claude Code session data
+.claude/
+
 # OS junk
 .DS_Store
 Thumbs.db
