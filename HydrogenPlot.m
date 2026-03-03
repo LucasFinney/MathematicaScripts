@@ -205,6 +205,20 @@ QuantumNumberTable[nMax_Integer] :=
    Section 4: Output
    ================================================================ *)
 
+(* --- Output directory ---
+   Individual plots are saved to "Hydrogen Plot Output/" next to
+   this script file. Falls back to the current working directory
+   when $InputFileName is unavailable (e.g. a notebook cell).    *)
+$HydrogenOutputDir = FileNameJoin[{
+  If[$InputFileName === "", Directory[], DirectoryName[$InputFileName]],
+  "Hydrogen Plot Output"
+}];
+If[!DirectoryQ[$HydrogenOutputDir],
+  CreateDirectory[$HydrogenOutputDir]
+];
+Print[Style["Output directory: " <> $HydrogenOutputDir, 11, Italic, GrayLevel[0.4]]];
+Print[""]
+
 (* --- Quantum number table for n = 1 to 4 --- *)
 Print[Style[
   "Hydrogen Atom \[LongDash] All Quantum Number Combinations (n \[LessEqual] 4)",
@@ -220,16 +234,50 @@ Print[Style[
 ]]
 
 (* --- Example probability density plots --- *)
+(* Orbital specifications for the example grid: {n, l, m, s} *)
+$PlotSpecs = {
+  {1, 0,  0,  1/2},
+  {2, 0,  0,  1/2},
+  {2, 1,  0,  1/2},
+  {2, 1,  1,  1/2},
+  {3, 2,  0,  1/2},
+  {3, 2,  1,  1/2},
+  {4, 3,  0,  1/2},
+  {4, 3,  2,  1/2}
+};
+
+(* Generate each plot, export it as a PNG, and collect for the grid *)
 Print[""]
 Print[Style["Probability Densities \[LeftBracketingBar]\[Psi]\[RightBracketingBar]\[Squared] \[LongDash] Selected Orbitals", 14, Bold]]
+Print[Style["Exporting individual plots...", 11, Italic, GrayLevel[0.4]]]
 
-GraphicsGrid[{
-  {HydrogenPlot[1, 0,  0,  1/2],   HydrogenPlot[2, 0,  0,  1/2]},
-  {HydrogenPlot[2, 1,  0,  1/2],   HydrogenPlot[2, 1,  1,  1/2]},
-  {HydrogenPlot[3, 2,  0,  1/2],   HydrogenPlot[3, 2,  1,  1/2]},
-  {HydrogenPlot[4, 3,  0,  1/2],   HydrogenPlot[4, 3,  2,  1/2]}
-},
+$OrbitalPlots = Map[
+  Function[spec,
+    Module[{n, l, m, s, p, msStr, fname, fpath},
+      {n, l, m, s} = spec;
+      p = HydrogenPlot[n, l, m, s];
+      msStr = If[s === 1/2, "up", "down"];
+      fname = "orbital_n" <> ToString[n] <>
+              "_l" <> ToString[l] <>
+              "_m" <> ToString[m] <>
+              "_ms" <> msStr <> ".png";
+      fpath = FileNameJoin[{$HydrogenOutputDir, fname}];
+      Export[fpath, p, "PNG"];
+      Print["  \[Bullet] ", fname];
+      p
+    ]
+  ],
+  $PlotSpecs
+];
+
+(* Display the combined grid and also save it as a single composite *)
+$OrbitalGrid = GraphicsGrid[
+  Partition[$OrbitalPlots, 2],
   ImageSize -> 800,
   Frame     -> All,
   Spacings  -> {5, 5}
-]
+];
+Export[FileNameJoin[{$HydrogenOutputDir, "orbital_grid_all.png"}], $OrbitalGrid, "PNG"];
+Print[Style["  \[Bullet] orbital_grid_all.png  (composite)", 11, GrayLevel[0.4]]]
+Print[""]
+$OrbitalGrid

@@ -15,6 +15,9 @@
 # Wolfram kernel crash logs
 WolframKernel*.log
 
+# Generated plot output
+Hydrogen Plot Output/
+
 # Claude Code session data
 .claude/
 
